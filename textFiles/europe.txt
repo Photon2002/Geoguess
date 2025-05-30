@@ -1,0 +1,2 @@
+poland assets/map/poland.png
+hungary assets/map/hungary.png
