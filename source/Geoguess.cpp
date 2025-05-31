@@ -1,9 +1,8 @@
-﻿#include <SFML/Graphics.hpp>
-#include <iostream>
+﻿#include <iostream>
+
 #include "ClickableObject.h"
 
-int main()
-{
+int main() {
     sf::RenderWindow window(sf::VideoMode({ 1600, 1200 }), "SFML works!");
     sf::Color backgroundColour(135, 206, 235);
     
@@ -25,16 +24,12 @@ int main()
         countries[i].setData("textFiles/europe.txt", i);
     }
 
-
-
-
-    while (window.isOpen())
-    {
+    while (window.isOpen()) {
         sf::Event event;
-        while (window.pollEvent(event))
-        {
-            if (event.type == sf::Event::Closed)
+        while (window.pollEvent(event)) {
+            if (event.type == sf::Event::Closed) {
                 window.close();
+            }
         }
         window.clear(backgroundColour);
         window.draw(contureSprite);

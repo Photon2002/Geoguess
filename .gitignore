@@ -31,6 +31,8 @@
 *.out
 *.app
 
-# Build
-build/
+# Some Folders
 .cache/
+build/
+Debug/
+Release/

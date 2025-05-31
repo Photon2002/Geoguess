@@ -1,6 +1,8 @@
-#include "ClickableObject.h"
+#include <iostream>
 #include <fstream>
 #include <sstream>
+
+#include "ClickableObject.h"
 
 ClickableObject::ClickableObject() {
 	objectName = "";
@@ -45,8 +47,6 @@ void ClickableObject::drawObject(sf::RenderWindow& window) const {
     window.draw(objectSprite);
 }
 
-/*
-bool ClickableObject::isClicked(sf::Vector2f mousePos) const {
-
+bool ClickableObject::isClicked(sf::Vector2f) const {
+    return false;
 }
-*/
