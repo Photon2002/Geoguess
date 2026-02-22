@@ -1,0 +1,3 @@
+C:/C++/Geoguess/cmake-build-debug/CMakeFiles/Geoguess.dir
+C:/C++/Geoguess/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/C++/Geoguess/cmake-build-debug/CMakeFiles/rebuild_cache.dir
