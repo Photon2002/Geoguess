@@ -39,7 +39,7 @@
 				{
 					"directoryIndex" : 0,
 					"id" : "Geoguess::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-Geoguess-Debug-aca8e039aed2eee1882b.json",
+					"jsonFile" : "target-Geoguess-Debug-0d992cfc76cefb94b1f7.json",
 					"name" : "Geoguess",
 					"projectIndex" : 0
 				}
@@ -49,7 +49,7 @@
 	"kind" : "codemodel",
 	"paths" : 
 	{
-		"build" : "C:/C++/Geoguess/cmake-build-debug",
+		"build" : "C:/C++/Geoguess/cmake-build-debug-winlibs-131",
 		"source" : "C:/C++/Geoguess"
 	},
 	"version" : 

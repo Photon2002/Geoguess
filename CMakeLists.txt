@@ -9,5 +9,6 @@ set(SFML_DIR "${SFML_ROOT}/lib/cmake/SFML")
 find_package(SFML 2.6 COMPONENTS system window graphics audio REQUIRED)
 
 add_executable(Geoguess main.cpp)
+#add_executable(Geoguess WIN32 main.cpp)
 
 target_link_libraries(Geoguess sfml-system sfml-window sfml-graphics sfml-audio)

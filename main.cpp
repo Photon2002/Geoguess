@@ -23,6 +23,9 @@ int main() {
     sf::Texture mapMaskTexture;
     sf::Sprite mapMaskSprite;
     std::string name;
+    std::string result;
+    int points = 0;
+    int maxPoints;
 
     sf::RectangleShape rectangleBackground;
     rectangleBackground.setSize(sf::Vector2f(400, 60));
@@ -30,6 +33,14 @@ int main() {
     rectangleBackground.setOutlineColor(sf::Color::Black);
     rectangleBackground.setOutlineThickness(2.f);
     rectangleBackground.setPosition(50, 50);
+
+    sf::RectangleShape pointsBackground;
+    pointsBackground.setSize(sf::Vector2f(400, 60));
+    pointsBackground.setFillColor(sf::Color::White);
+    pointsBackground.setOutlineColor(sf::Color::Black);
+    pointsBackground.setOutlineThickness(2.f);
+    pointsBackground.setPosition(1500, 50);
+
     sf::Font font;
     if (!font.loadFromFile("../fonts/arial.ttf")) {
         std::cerr << "Cannot find font!" << std::endl;
@@ -48,6 +59,21 @@ int main() {
     guessRegion.setPosition(
     rectangleBackground.getPosition().x + rectangleBackground.getSize().x / 2.f - 190.f,
     rectangleBackground.getPosition().y + rectangleBackground.getSize().y / 2.f - 20.f // przesunięcie w górę
+    );
+
+    sf::Text pointsText;
+    pointsText.setFont(font);
+    pointsText.setCharacterSize(30);
+    pointsText.setFillColor(sf::Color::Black);
+
+    sf::FloatRect pointTextRect = pointsText.getLocalBounds();
+    pointsText.setOrigin(
+        pointTextRect.left + pointTextRect.width / 2.f,
+        pointTextRect.top + pointTextRect.height / 2.f
+    );
+    pointsText.setPosition(
+    pointsBackground.getPosition().x + pointsBackground.getSize().x / 2.f - 100.f,
+    pointsBackground.getPosition().y + pointsBackground.getSize().y / 2.f - 20.f // przesunięcie w górę
     );
 
 
@@ -90,7 +116,7 @@ int main() {
     mapMaskSprite.setOrigin(static_cast<float>(mapMaskImage.getSize().x) / 2.f, static_cast<float>(mapMaskImage.getSize().y) / 2.f);
     mapMaskSprite.setPosition(static_cast<float>(window.getSize().x) / 2.f, static_cast<float>(window.getSize().y) / 2.f);
 
-
+    maxPoints = regions.size();
     name = regions[rand() % regions.size()].name;
 
     while (window.isOpen()) {
@@ -114,7 +140,7 @@ int main() {
 
                                         sf::Color regionColor = regions[i].color;
                                         regions.erase(regions.begin() + i);
-
+                                        points++;
                                         for (unsigned int x = 0; x < mapImage.getSize().x; x++) {
                                             for (unsigned int y = 0; y < mapImage.getSize().y; y++) {
 
@@ -168,13 +194,16 @@ int main() {
                 }
             }
         }
-
+        result = "Wynik: " + std::to_string(points) + "/" + std::to_string(maxPoints);
         guessRegion.setString(sf::String::fromUtf8(name.begin(), name.end()));
+        pointsText.setString(sf::String::fromUtf8(result.begin(), result.end()));
         window.clear(backgroundColor);
         //window.draw(mapSprite);
         window.draw(mapMaskSprite);
         window.draw(rectangleBackground);
+        window.draw(pointsBackground);
         window.draw(guessRegion);
+        window.draw(pointsText);
         window.display();
     }
     return 0;
