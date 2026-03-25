@@ -10,6 +10,27 @@ struct Region {
     sf::Color color;
 };
 
+void resetGame(
+    std::vector<Region>& regions,
+    const std::vector<Region>& allRegions,
+    sf::Image& mapMaskImage,
+    const sf::Image& originalMask,
+    sf::Texture& mapMaskTexture,
+    std::string& name,
+    int& points,
+    bool& isGameFinished
+){
+    regions = allRegions;              // przywróć wszystkie regiony
+    mapMaskImage = originalMask;       // przywróć czystą maskę
+    mapMaskTexture.loadFromImage(mapMaskImage);
+
+    points = 0;
+    isGameFinished = false;
+
+    if (!regions.empty())
+        name = regions[rand() % regions.size()].name;
+}
+
 int main() {
 
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
@@ -24,8 +45,9 @@ int main() {
     sf::Sprite mapMaskSprite;
     std::string name;
     std::string result;
+    bool isGameFinished = false;
     int points = 0;
-    int maxPoints;
+    int maxPoints = 0;
 
     sf::RectangleShape rectangleBackground;
     rectangleBackground.setSize(sf::Vector2f(400, 60));
@@ -33,6 +55,50 @@ int main() {
     rectangleBackground.setOutlineColor(sf::Color::Black);
     rectangleBackground.setOutlineThickness(2.f);
     rectangleBackground.setPosition(50, 50);
+
+
+    sf::RectangleShape resultBox;
+    resultBox.setSize(sf::Vector2f(400, 300));
+    resultBox.setFillColor(sf::Color(255,255,255,230));
+    resultBox.setOutlineColor(sf::Color::Black);
+    resultBox.setOutlineThickness(2.f);
+    resultBox.setPosition(800, 400);
+
+
+    sf::RectangleShape retryBox;
+    retryBox.setSize(sf::Vector2f(120, 50));
+    retryBox.setFillColor(sf::Color(255,255,255,230));
+    retryBox.setOutlineColor(sf::Color::Black);
+    retryBox.setOutlineThickness(2.f);
+    retryBox.setPosition(800, 600);
+
+
+    sf::RectangleShape quitBox;
+    quitBox.setSize(sf::Vector2f(120, 50));
+    quitBox.setFillColor(sf::Color(255,255,255,230));
+    quitBox.setOutlineColor(sf::Color::Black);
+    quitBox.setOutlineThickness(2.f);
+    quitBox.setPosition(1100, 600);
+
+    float centerX = resultBox.getPosition().x + resultBox.getSize().x / 2.f;
+    float bottomY = resultBox.getPosition().y + resultBox.getSize().y;
+
+    // odstęp od dołu okna końcowego
+    float buttonsY = bottomY - 70.f;
+
+    // odstęp przycisków od środka
+    float spacing = 80.f;
+
+    retryBox.setPosition(
+        centerX - retryBox.getSize().x - spacing/2.f,
+        buttonsY
+    );
+
+    quitBox.setPosition(
+        centerX + spacing/2.f,
+        buttonsY
+    );
+
 
     sf::RectangleShape pointsBackground;
     pointsBackground.setSize(sf::Vector2f(400, 60));
@@ -65,6 +131,56 @@ int main() {
     pointsText.setFont(font);
     pointsText.setCharacterSize(30);
     pointsText.setFillColor(sf::Color::Black);
+
+    sf::Text endTitle, endScore;
+    endTitle.setFont(font);
+    endTitle.setString("KONIEC GRY");
+    endTitle.setCharacterSize(48);
+    endTitle.setFillColor(sf::Color::Black);
+    endTitle.setStyle(sf::Text::Bold);
+
+    endScore.setFont(font);
+    endScore.setCharacterSize(32);
+    endScore.setFillColor(sf::Color::Black);
+
+
+    float cx = resultBox.getPosition().x + resultBox.getSize().x / 2.f;
+    float topY = resultBox.getPosition().y;
+
+    sf::FloatRect tRect = endTitle.getLocalBounds();
+    endTitle.setOrigin(tRect.left + tRect.width/2.f, tRect.top + tRect.height/2.f);
+    endTitle.setPosition(cx, topY + 70.f);
+
+    sf::FloatRect sRect = endScore.getLocalBounds();
+    endScore.setOrigin(sRect.left + sRect.width/2.f, sRect.top + sRect.height/2.f);
+    endScore.setPosition(cx, topY + 150.f);
+
+    sf::Text retryText, quitText;
+
+    retryText.setFont(font);
+    quitText.setFont(font);
+
+    retryText.setCharacterSize(22);
+    quitText.setCharacterSize(22);
+
+    retryText.setFillColor(sf::Color::Black);
+    quitText.setFillColor(sf::Color::Black);
+
+    retryText.setString("Jeszcze raz");
+    quitText.setString("Menu");
+
+    auto centerText = [](sf::Text& text, const sf::RectangleShape& box)
+    {
+        sf::FloatRect r = text.getLocalBounds();
+        text.setOrigin(r.left + r.width/2.f, r.top + r.height/2.f);
+        text.setPosition(
+            box.getPosition().x + box.getSize().x/2.f,
+            box.getPosition().y + box.getSize().y/2.f
+        );
+    };
+
+    centerText(retryText, retryBox);
+    centerText(quitText, quitBox);
 
     sf::FloatRect pointTextRect = pointsText.getLocalBounds();
     pointsText.setOrigin(
@@ -119,14 +235,45 @@ int main() {
     maxPoints = regions.size();
     name = regions[rand() % regions.size()].name;
 
+    std::vector<Region> allRegions = regions;   // kopia pełnej listy
+    sf::Image originalMask = mapMaskImage;     // czysta maska
+
     while (window.isOpen()) {
-
-
         sf::Event event;
         while (window.pollEvent(event)) {
             if (event.type == sf::Event::Closed)
                 window.close();
-            if (event.type == sf::Event::MouseButtonPressed) {
+
+            if (event.type == sf::Event::MouseButtonPressed && isGameFinished)
+            {
+                if (event.mouseButton.button == sf::Mouse::Left)
+                {
+                    sf::Vector2f mouse(sf::Mouse::getPosition(window));
+
+                    if (retryBox.getGlobalBounds().contains(mouse))
+                    {
+                        resetGame(
+                            regions,
+                            allRegions,
+                            mapMaskImage,
+                            originalMask,
+                            mapMaskTexture,
+                            name,
+                            points,
+                            isGameFinished
+                        );
+
+                        continue;
+                    }
+
+                    if (quitBox.getGlobalBounds().contains(mouse))
+                    {
+                        window.close(); // na razie zamyka grę
+                    }
+                }
+            }
+
+            if (event.type == sf::Event::MouseButtonPressed && !isGameFinished) {
                 if (event.mouseButton.button == sf::Mouse::Left) {
                     sf::Vector2i mousePos = sf::Mouse::getPosition(window);
                     sf::Vector2f localPos = mapMaskSprite.getInverseTransform().transformPoint(static_cast<sf::Vector2f>(mousePos));
@@ -158,7 +305,7 @@ int main() {
                                         }
                                         else {
                                             std::cout << "Wszystkie regiony zostaly odgadniete!" << std::endl;
-                                            window.close();
+                                            isGameFinished = true;
                                             break;
                                         }
                                     }
@@ -182,7 +329,7 @@ int main() {
                                         }
                                         else {
                                             std::cout << "Wszystkie regiony zostaly odgadniete!" << std::endl;
-                                            window.close();
+                                            isGameFinished = true;
                                             break;
                                         }
                                     }
@@ -195,8 +342,13 @@ int main() {
             }
         }
         result = "Wynik: " + std::to_string(points) + "/" + std::to_string(maxPoints);
+        std::string endText =
+        "Koniec Gry\n"
+        "Twoj wynik: " + std::to_string(points) + "/" + std::to_string(maxPoints);
+
         guessRegion.setString(sf::String::fromUtf8(name.begin(), name.end()));
         pointsText.setString(sf::String::fromUtf8(result.begin(), result.end()));
+
         window.clear(backgroundColor);
         //window.draw(mapSprite);
         window.draw(mapMaskSprite);
@@ -204,6 +356,26 @@ int main() {
         window.draw(pointsBackground);
         window.draw(guessRegion);
         window.draw(pointsText);
+
+        if(isGameFinished == true) {
+
+            std::string scoreStr =
+                "Twoj wynik: " + std::to_string(points) + " / " + std::to_string(maxPoints);
+
+            endScore.setString(sf::String::fromUtf8(scoreStr.begin(), scoreStr.end()));
+
+            sf::FloatRect sRect = endScore.getLocalBounds();
+            endScore.setOrigin(sRect.left + sRect.width/2.f, sRect.top + sRect.height/2.f);
+            endScore.setPosition(cx, topY + 150.f);
+
+            window.draw(resultBox);
+            window.draw(endTitle);
+            window.draw(endScore);
+            window.draw(retryBox);
+            window.draw(quitBox);
+            window.draw(retryText);
+            window.draw(quitText);
+        }
         window.display();
     }
     return 0;
